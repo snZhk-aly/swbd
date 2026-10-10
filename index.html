@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ============ ЗАЩИТА (мета-теги) ============ -->
+  <!-- Запрет встраивания в iframe (защита от кликджекинга) -->
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <!-- Запрет MIME-sniffing -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <!-- Политика безопасности контента: только свои скрипты и стили + CDN, который мы явно указали -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self' 'unsafe-inline';
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+                 font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+                 img-src 'self' data:;
+                 connect-src 'self';
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self';">
+  <!-- Отключаем передачу referrer наружу -->
+  <meta name="referrer" content="no-referrer">
+
+  <title>Зимние виды спорта · расширенный информационный портал</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #1b2b4e 0%, #2a4a6e 50%, #1f3a5a 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #f0f7ff;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "❄️ ❅ ❆ ❄️ ❅ ❆ ❄️ ❅ ❆";
+      position: absolute;
+      top: 10px; left: 0;
+      width: 100%;
+      font-size: 2.5rem;
+      color: rgba(255, 255, 255, 0.08);
+      letter-spacing: 3rem;
+      white-space: nowrap;
+      pointer-events: none;
+      animation: drift 40s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes drift {
+      0% { transform: translateX(-10%); }
+      100% { transform: translateX(10%); }
+    }
+
+    .app { max-width: 1300px; width: 100%; position: relative; z-index: 2; }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+      padding: 1.8rem 2rem;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-panel:hover {
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding: 1rem 1.8rem;
+    }
+
+    .logo h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #c0e0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .logo i { font-size: 2.4rem; color: #b3e0ff; filter: drop-shadow(0 0 6px #8ac8ff); }
+
+    .nav-buttons { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 3rem;
+      padding: 0.7rem 1.4rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #e6f2ff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+
+    .glass-btn i { font-size: 1rem; }
+
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: white;
+      transform: scale(1.02);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-btn:active { transform: scale(0.98); }
+
+    .glass-btn.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(180, 220, 255, 0.5);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 3rem;
+      padding: 0.2rem 0.2rem 0.2rem 1.4rem;
+      flex: 1;
+      min-width: 220px;
+      transition: all 0.2s;
+    }
+
+    .search-wrapper:focus-within {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 15px rgba(180, 220, 255, 0.3);
+    }
+
+    .search-wrapper i { color: #b0d0ff; font-size: 1rem; }
+
+    .search-wrapper input {
+      background: transparent;
+      border: none;
+      padding: 0.8rem 1rem;
+      font-size: 0.95rem;
+      color: white;
+      width: 100%;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .search-wrapper input::placeholder {
+      color: rgba(220, 240, 255, 0.6);
+      font-weight: 400;
+    }
+
+    .filter-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 2.5rem;
+      padding: 0.7rem 1.3rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #d0e4ff;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: white;
+    }
+
+    .filter-btn.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.8);
+      color: white;
+      box-shadow: 0 0 15px rgba(180, 220, 255, 0.4);
+    }
+
+    .sports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.6rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .sport-card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 1.8rem;
+      padding: 1.5rem 1.5rem 1.3rem;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .sport-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 22px 35px -8px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+      color: #c0e0ff;
+      filter: drop-shadow(0 0 8px rgba(150, 200, 255, 0.6));
+    }
+
+    .sport-card h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+    }
+
+    .sport-card p {
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #d3e5ff;
+      flex: 1;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .card-meta {
+      font-size: 0.78rem;
+      color: #a8c8ff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .card-meta span {
+      background: rgba(255,255,255,0.07);
+      padding: 0.15rem 0.6rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 0.9rem;
+      margin-top: 0.2rem;
+    }
+
+    .olympic-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2rem;
+      background: rgba(255, 215, 0, 0.15);
+      color: #ffd966;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      letter-spacing: 0.3px;
+    }
+
+    .detail-btn {
+      background: transparent;
+      border: none;
+      color: #b8d8ff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: 0.2s;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50%;
+    }
+
+    .detail-btn:hover {
+      color: white;
+      transform: scale(1.15);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .info-panel {
+      margin-top: 1.5rem;
+      padding: 1.8rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 2rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .info-panel.hidden { display: none; }
+
+    .info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .info-header h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .close-info {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .close-info:hover {
+      background: rgba(255, 80, 80, 0.5);
+      border-color: #ff9f9f;
+    }
+
+    .info-content p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #e2eeff;
+      margin-bottom: 0.9rem;
+    }
+
+    .info-content h4 {
+      color: #b8d8ff;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    .info-content ul {
+      margin-left: 1.5rem;
+      color: #d0e4ff;
+      margin-bottom: 0.9rem;
+    }
+
+    .info-content li { margin-bottom: 0.4rem; }
+
+    .info-content .fact-box {
+      background: rgba(255,255,255,0.06);
+      border-left: 3px solid #8ac8ff;
+      padding: 0.8rem 1rem;
+      border-radius: 0.8rem;
+      margin-top: 1rem;
+      font-size: 0.92rem;
+      color: #c8deff;
+    }
+
+    .footer-note {
+      margin-top: 2.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: rgba(210, 230, 255, 0.7);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1.8rem;
+      letter-spacing: 0.3px;
+    }
+
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: #90ee90;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 650px) {
+      body { padding: 1rem; }
+      .glass-panel { padding: 1.2rem; }
+      header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .logo h1 { font-size: 1.7rem; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .sports-grid { grid-template-columns: 1fr; }
+      .info-header h2 { font-size: 1.4rem; }
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="glass-panel">
+      <div class="logo">
+        <i class="fas fa-snowflake"></i>
+        <h1>WinterSport</h1>
+      </div>
+      <div class="nav-buttons">
+        <button class="glass-btn" id="homeBtn"><i class="fas fa-home"></i> Главная</button>
+        <button class="glass-btn" id="randomSportBtn"><i class="fas fa-dice"></i> Случайный вид</button>
+        <button class="glass-btn" id="olympicFilterBtn"><i class="fas fa-medal"></i> Олимпийские</button>
+        <button class="glass-btn" id="statsBtn"><i class="fas fa-chart-simple"></i> Статистика</button>
+      </div>
+    </header>
+
+    <div class="toolbar glass-panel" style="padding: 1rem 1.5rem;">
+      <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Поиск вида спорта..." maxlength="60" autocomplete="off">
+      </div>
+      <div class="filter-buttons" id="filterContainer">
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="лыжи">Лыжные</button>
+        <button class="filter-btn" data-filter="коньки">Коньковые</button>
+        <button class="filter-btn" data-filter="сноуборд">Сноуборд</button>
+        <button class="filter-btn" data-filter="командные">Командные</button>
+      </div>
+    </div>
+
+    <div class="sports-grid" id="sportsGrid"></div>
+
+    <div class="info-panel hidden" id="infoPanel">
+      <div class="info-header">
+        <h2 id="infoTitle"><i class="fas fa-info-circle"></i> Название</h2>
+        <button class="close-info" id="closeInfoBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="info-content" id="infoContent"></div>
+    </div>
+
+    <div class="footer-note">
+      <i class="fas fa-snowflake"></i> Информационный портал о зимних видах спорта · Глассморфизм стиль
+      <div class="security-badge"><i class="fas fa-shield-halved"></i> Защищено: CSP, XSS-фильтрация, sanitize ввода</div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+    (function() {
+      // ============ ЗАЩИТА: ЭКРАНИРОВАНИЕ ============
+      // Экранирует HTML-спецсимволы — защита от XSS при выводе данных.
+      function escapeHTML(str) {
+        if (typeof str !== 'string') return '';
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+          '/': '&#x2F;',
+          '`': '&#x60;',
+          '=': '&#x3D;'
+        };
+        return str.replace(/[&<>"'`=\/]/g, function(s) { return map[s]; });
+      }
+
+      // Очистка пользовательского ввода перед использованием в поиске
+      function sanitizeInput(str) {
+        if (typeof str !== 'string') return '';
+        // Убираем потенциально опасные конструкции
+        return str
+          .slice(0, 100)
+          .replace(/<[^>]*>/g, '')
+          .replace(/[<>"'`]/g, '')
+          .trim()
+          .toLowerCase();
+      }
+
+      // Безопасное создание элемента через textContent
+      function safeText(el, text) {
+        el.textContent = String(text);
+      }
+
+      // ============ ДАННЫЕ (расширенные) ============
+      const sportsData = [
+        {
+          id: 1, name: 'Горные лыжи', category: 'лыжи', olympic: true, icon: 'fa-mountain',
+          short: 'Спуск с гор на лыжах по размеченным трассам. Скорость, техника и адреналин.',
+          full: 'Горнолыжный спорт включает скоростной спуск, слалом, гигантский слалом и супер-гигант. Зародился в Альпах в конце XIX века, а сегодня популярен во всех горных регионах мира.',
+          history: 'Первые соревнования по горным лыжам прошли в 1905 году в Австрии. В программе Олимпийских игр с 1936 года.',
+          rules: 'Спортсмен должен пройти трассу через все ворота за минимальное время. За пропуск ворот — дисквалификация.',
+          equipment: 'Горные лыжи, жёсткие ботинки, шлем, защитные очки, палки.',
+          facts: 'Самая длинная горнолыжная трасса — 20 км (Давос, Швейцария). Максимальная скорость в скоростном спуске превышает 150 км/ч.',
+          olympicDetails: 'Дисциплины: скоростной спуск, супер-гигант, гигантский слалом, слалом, комбинация.'
+        },
+        {
+          id: 2, name: 'Конькобежный спорт', category: 'коньки', olympic: true, icon: 'fa-person-skating',
+          short: 'Соревнования на льду на скорость с использованием специальных коньков.',
+          full: 'Конькобежный спорт — один из старейших зимних видов. Включает спринт и стайерские дистанции. Проводится на открытых катках и в ледовых дворцах.',
+          history: 'Первые клубы появились в XVIII веке в Великобритании. Олимпийский дебют — 1924 год (Шамони).',
+          rules: 'Спортсмены бегут парами по двум дорожкам, меняясь на каждом круге. Побеждает показавший лучшее время.',
+          equipment: 'Клапковые коньки, аэродинамический комбинезон, шлем.',
+          facts: 'Рекорд скорости — около 60 км/ч. Дистанции: 500, 1000, 1500, 3000, 5000, 10000 м.',
+          olympicDetails: 'В программе Олимпиад с 1924 года. Женщины участвуют с 1960 года.'
+        },
+        {
+          id: 3, name: 'Сноубординг', category: 'сноуборд', olympic: true, icon: 'fa-snowboarding',
+          short: 'Спуск по снегу на сноуборде. Разнообразие стилей: фристайл, слалом, хафпайп.',
+          full: 'Сноубординг появился в 1960-х как альтернатива лыжам. Включает дисциплины: параллельный слалом, сноуборд-кросс, хафпайп, слоупстайл, биг-эйр.',
+          history: 'Изобретён в США в 1965 году Шерманом Поппеном. Олимпийский вид с 1998 года (Нагано).',
+          rules: 'Правила зависят от дисциплины: на скорость, на технику, на высоту прыжка.',
+          equipment: 'Сноуборд, мягкие или жёсткие ботинки, крепления, шлем.',
+          facts: 'Самый высокий хафпайп — 6,7 м. Скорость в сноуборд-кроссе достигает 80 км/ч.',
+          olympicDetails: 'Дисциплины: хафпайп, слоупстайл, биг-эйр, сноуборд-кросс, параллельный гигантский слалом.'
+        },
+        {
+          id: 4, name: 'Биатлон', category: 'лыжи', olympic: true, icon: 'fa-crosshairs',
+          short: 'Лыжная гонка со стрельбой из винтовки на огневых рубежах.',
+          full: 'Биатлон сочетает лыжные гонки свободным стилем и стрельбу из малокалиберной винтовки. Существует множество форматов: спринт, пасьют, масс-старт, эстафета, индивидуальная гонка.',
+          history: 'Корни уходят в военные патрульные гонки XIX века. Олимпийский вид с 1960 года (Скво-Вэлли).',
+          rules: 'За каждый промах — штрафной круг (150 м) или штрафная минута. Побеждает лучший по времени.',
+          equipment: 'Лыжи, винтовка калибра 5,6 мм, патроны.',
+          facts: 'Стрельба ведётся из положения лёжа и стоя. Мишени: 5 штук, диаметр 45 мм (лёжа) и 115 мм (стоя).',
+          olympicDetails: 'В программе с 1960 года. Женские дисциплины добавлены в 1992 году.'
+        },
+        {
+          id: 5, name: 'Фигурное катание', category: 'коньки', olympic: true, icon: 'fa-heart',
+          short: 'Спортивное и художественное катание на коньках под музыку.',
+          full: 'Фигурное катание включает одиночное, парное катание, танцы на льду и синхронное катание. Оценивается техника и артистизм.',
+          history: 'Первые соревнования прошли в 1882 году в Вене. В программе Олимпийских игр с 1908 года.',
+          rules: 'Судьи оценивают элементы: прыжки, вращения, дорожки шагов. Оценка = техническая + компоненты программы.',
+          equipment: 'Фигурные коньки с лезвием и зубцами, костюмы.',
+          facts: 'Самый сложный прыжок — четверной аксель. Скорость вращения достигает 300 об/мин.',
+          olympicDetails: 'Дисциплины: мужское, женское одиночное, парное, танцы на льду, командный турнир.'
+        },
+        {
+          id: 6, name: 'Хоккей с шайбой', category: 'командные', olympic: true, icon: 'fa-hockey-puck',
+          short: 'Командная игра на льду с шайбой и клюшками. Один из самых зрелищных видов.',
+          full: 'Хоккей с шайбой — командный вид спорта, цель — забросить шайбу в ворота соперника. Играют 5 полевых + вратарь. Матч состоит из трёх периодов по 20 минут.',
+          history: 'Современный хоккей сформировался в Канаде в XIX веке. Олимпийский вид с 1920 года.',
+          rules: 'Запрещены толчки, удары клюшкой, задержки. Нарушения караются удалением на 2, 5 или 10 минут.',
+          equipment: 'Клюшка, шайба, коньки, защита, шлем, вратарская амуниция.',
+          facts: 'Скорость шайбы достигает 190 км/ч. Самый титулованный — СССР/Россия и Канада.',
+          olympicDetails: 'Женский турнир с 1998 года. Профессионалы допущены с 1998 года (Нагано).'
+        },
+        {
+          id: 7, name: 'Кёрлинг', category: 'командные', olympic: true, icon: 'fa-bullseye',
+          short: 'Командная игра на льду с камнями и щётками. Точность и стратегия.',
+          full: 'Кёрлинг — командная игра, в которой игроки скользят камни по льду, стараясь попасть в «дом». Играют 4 на 4. Цель — поставить свой камень ближе к центру, чем камень соперника.',
+          history: 'Зародился в Шотландии в XVI веке. Олимпийский вид с 1924 (показательно) и официально с 1998 года.',
+          rules: '10 эндов (периодов). В каждом энде команды делают по 8 бросков. Побеждает команда с большим количеством очков.',
+          equipment: 'Камень (20 кг), щётка, специальная обувь.',
+          facts: 'Идеальный бросок называется «хаммер» или «стил». Стратегия важнее силы.',
+          olympicDetails: 'Дисциплины: мужской, женский, смешанный парный турнир (с 2018).'
+        },
+        {
+          id: 8, name: 'Фристайл', category: 'лыжи', olympic: true, icon: 'fa-skiing',
+          short: 'Лыжный спорт с элементами акробатики: могул, ски-кросс, хафпайп.',
+          full: 'Фристайл включает дисциплины: могул, парный могул, ски-кросс, слоупстайл, хафпайп, биг-эйр. Очень зрелищный и динамичный вид.',
+          history: 'Зародился в 1960-х в США как альтернатива традиционным лыжам. Олимпийский вид с 1992 года (могул).',
+          rules: 'В могуле оценивается техника, скорость и прыжки. В ски-кроссе — скорость и контактная борьба.',
+          equipment: 'Лыжи (для могула — узкие), шлем, защита.',
+          facts: 'Прыжки в могуле достигают 4 метров в высоту. Слоупстайл требует выполнения трюков на трамплинах.',
+          olympicDetails: 'Дисциплины: могул, парный могул, ски-кросс, хафпайп, слоупстайл, биг-эйр.'
+        },
+        {
+          id: 9, name: 'Санный спорт', category: 'коньки', olympic: true, icon: 'fa-sled',
+          short: 'Скоростной спуск на санях по ледяному жёлобу.',
+          full: 'Санный спорт — спуск на одноместных или двухместных санях по специальной трассе. Требует идеальной аэродинамики и реакции. Спортсмен лежит на спине, ногами вперёд.',
+          history: 'Зародился в Альпах в XIX веке. Олимпийский вид с 1964 года (Инсбрук).',
+          rules: 'Побеждает лучший по сумме двух или четырёх заездов. В эстафете — командный зачёт.',
+          equipment: 'Сани (вес до 23 кг), костюм, шлем, перчатки с шипами.',
+          facts: 'Скорость достигает 140 км/ч. Перегрузки — до 5g. Трасса в Сочи — 1814 м.',
+          olympicDetails: 'Дисциплины: одноместные (муж/жен), двухместные, эстафета.'
+        },
+        {
+          id: 10, name: 'Скелетон', category: 'коньки', olympic: true, icon: 'fa-person-falling',
+          short: 'Спуск по ледяному жёлобу на санях без рулевого управления, лёжа на животе.',
+          full: 'Скелетон — скоростной спуск на санях-скелетоне. Спортсмен лежит на животе головой вперёд. Управление осуществляется движением тела.',
+          history: 'Название от скелетообразных саней. Олимпийский вид с 1928 и 1948, возвращён в 2002 году.',
+          rules: 'Два заезда, побеждает лучший по сумме. Разрешён разгон до 40 м.',
+          equipment: 'Сани (вес до 43 кг), шлем, костюм.',
+          facts: 'Самая высокая скорость — 130 км/ч. Трасса в Солт-Лейк-Сити имеет уклон до 40%.',
+          olympicDetails: 'Дисциплины: мужской и женский турниры.'
+        },
+        {
+          id: 11, name: 'Лыжные гонки', category: 'лыжи', olympic: true, icon: 'fa-skiing-nordic',
+          short: 'Гонки на лыжах по пересечённой местности классическим и свободным стилем.',
+          full: 'Лыжные гонки — один из самых массовых зимних видов. Включает индивидуальные гонки, скиатлон, эстафеты, спринт. Проводятся классическим и свободным стилем.',
+          history: 'Зародились в Скандинавии. Олимпийский вид с 1924 года (Шамони).',
+          rules: 'Побеждает лучший по времени. В спринте — отборочные забеги, затем финалы.',
+          equipment: 'Лыжи, палки, ботинки, мазь для скольжения.',
+          facts: 'Самая длинная гонка — 50 км у мужчин (классика). Марафон — 70 км и более.',
+          olympicDetails: 'Дисциплины: спринт, командный спринт, скиатлон, эстафета, масс-старт.'
+        },
+        {
+          id: 12, name: 'Шорт-трек', category: 'коньки', olympic: true, icon: 'fa-person-skating',
+          short: 'Скоростной бег на коньках по короткой дорожке внутри хоккейной площадки.',
+          full: 'Шорт-трек — гонки на коньках по овальной дорожке 111,12 м. Включает дистанции 500, 1000, 1500, 3000 м и эстафеты. Очень тактический вид.',
+          history: 'Зародился в Канаде в 1900-х. Олимпийский вид с 1992 года (Альбервиль).',
+          rules: 'Запрещены толчки и блокировки. За нарушение — дисквалификация.',
+          equipment: 'Коньки с длинным лезвием, шлем, защитные очки, перчатки.',
+          facts: 'Скорость достигает 50 км/ч. На поворотах спортсмены касаются льда рукой.',
+          olympicDetails: 'Дисциплины: 500 м, 1000 м, 1500 м, эстафета 3000 м (жен) и 5000 м (муж).'
+        }
+      ];
+
+      // ============ СОСТОЯНИЕ ============
+      let currentFilter = 'all';
+      let searchQuery = '';
+      let isOlympicFilter = false;
+
+      // ============ DOM ============
+      const sportsGrid = document.getElementById('sportsGrid');
+      const infoPanel = document.getElementById('infoPanel');
+      const infoTitle = document.getElementById('infoTitle');
+      const infoContent = document.getElementById('infoContent');
+      const closeInfoBtn = document.getElementById('closeInfoBtn');
+      const searchInput = document.getElementById('searchInput');
+      const filterContainer = document.getElementById('filterContainer');
+
+      // ============ ОТРИСОВКА ============
+      function renderSports() {
+        let list = sportsData.slice();
+
+        if (currentFilter !== 'all') {
+          list = list.filter(s => s.category === currentFilter);
+        }
+
+        if (isOlympicFilter) {
+          list = list.filter(s => s.olympic === true);
+        }
+
+        if (searchQuery) {
+          list = list.filter(s =>
+            s.name.toLowerCase().includes(searchQuery) ||
+            s.short.toLowerCase().includes(searchQuery) ||
+            s.category.toLowerCase().includes(searchQuery)
+          );
+        }
+
+        sportsGrid.innerHTML = '';
+
+        if (list.length === 0) {
+          const noResult = document.createElement('div');
+          noResult.className = 'glass-panel';
+          noResult.style.gridColumn = '1 / -1';
+          noResult.style.textAlign = 'center';
+          noResult.style.padding = '2.5rem';
+          safeText(noResult, '😕 Ничего не найдено. Попробуйте другой запрос.');
+          sportsGrid.appendChild(noResult);
+          return;
+        }
+
+        list.forEach(sport => {
+          const card = document.createElement('div');
+          card.className = 'sport-card';
+          card.setAttribute('data-id', sport.id);
+
+          // Иконка
+          const icon = document.createElement('i');
+          icon.className = `fas ${sport.icon} card-icon`;
+          card.appendChild(icon);
+
+          // Название (безопасно)
+          const h3 = document.createElement('h3');
+          safeText(h3, sport.name);
+          card.appendChild(h3);
+
+          // Метаданные
+          const meta = document.createElement('div');
+          meta.className = 'card-meta';
+          const catSpan = document.createElement('span');
+          safeText(catSpan, `#${sport.category}`);
+          meta.appendChild(catSpan);
+          const idSpan = document.createElement('span');
+          safeText(idSpan, `ID: ${sport.id}`);
+          meta.appendChild(idSpan);
+          card.appendChild(meta);
+
+          // Краткое описание
+          const p = document.createElement('p');
+          safeText(p, sport.short);
+          card.appendChild(p);
+
+          // Футер
+          const footer = document.createElement('div');
+          footer.className = 'card-footer';
+
+          const badge = document.createElement('span');
+          badge.className = 'olympic-badge';
+          safeText(badge, sport.olympic ? '🏅 Олимпийский' : '❄️ Неолимпийский');
+          footer.appendChild(badge);
+
+          const detailBtn = document.createElement('button');
+          detailBtn.className = 'detail-btn';
+          detailBtn.setAttribute('aria-label', 'Подробнее');
+          detailBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+          detailBtn.addEventListener('click', () => showInfo(sport.id));
+          footer.appendChild(detailBtn);
+
+          card.appendChild(footer);
+          sportsGrid.appendChild(card);
+        });
+      }
+
+      // ============ ПОКАЗ ИНФОРМАЦИИ (БЕЗОПАСНО) ============
+      function showInfo(id) {
+        const sport = sportsData.find(s => s.id === id);
+        if (!sport) return;
+
+        // Заголовок
+        infoTitle.innerHTML = `<i class="fas ${sport.icon}"></i> `;
+        const titleText = document.createTextNode(sport.name);
+        infoTitle.appendChild(titleText);
+
+        // Контент
+        infoContent.innerHTML = '';
+
+        const addPara = (text) => {
+          const p = document.createElement('p');
+          safeText(p, text);
+          infoContent.appendChild(p);
+        };
+
+        addPara(sport.full);
+
+        const addHeading = (text) => {
+          const h4 = document.createElement('h4');
+          safeText(h4, text);
+          infoContent.appendChild(h4);
+        };
+
+        const addList = (items) => {
+          const ul = document.createElement('ul');
+          items.forEach(item => {
+            const li = document.createElement('li');
+            safeText(li, item);
+            ul.appendChild(li);
+          });
+          infoContent.appendChild(ul);
+        };
+
+        addHeading('📜 История');
+        addPara(sport.history);
+
+        addHeading('📋 Правила');
+        addPara(sport.rules);
+
+        addHeading('🎿 Экипировка');
+        addPara(sport.equipment);
+
+        addHeading('🏅 Олимпийские дисциплины');
+        addPara(sport.olympicDetails);
+
+        // Факт-бокс
+        const factBox = document.createElement('div');
+        factBox.className = 'fact-box';
+        const factLabel = document.createElement('strong');
+        safeText(factLabel, '💡 Интересный факт: ');
+        factBox.appendChild(factLabel);
+        factBox.appendChild(document.createTextNode(sport.facts));
+        infoContent.appendChild(factBox);
+
+        infoPanel.classList.remove('hidden');
+        infoPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // ============ ФИЛЬТРЫ ============
+      function setFilter(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        renderSports();
+      }
+
+      // ============ СОБЫТИЯ ============
+      filterContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        setFilter(btn.dataset.filter);
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = sanitizeInput(e.target.value);
+        renderSports();
+      });
+
+      closeInfoBtn.addEventListener('click', () => {
+        infoPanel.classList.add('hidden');
+      });
+
+      document.getElementById('homeBtn').addEventListener('click', () => {
+        currentFilter = 'all';
+        searchQuery = '';
+        isOlympicFilter = false;
+        searchInput.value = '';
+        setFilter('all');
+        infoPanel.classList.add('hidden');
+      });
+
+      document.getElementById('randomSportBtn').addEventListener('click', () => {
+        const random = sportsData[Math.floor(Math.random() * sportsData.length)];
+        showInfo(random.id);
+      });
+
+      document.getElementById('olympicFilterBtn').addEventListener('click', () => {
+        isOlympicFilter = !isOlympicFilter;
+        document.getElementById('olympicFilterBtn').classList.toggle('active', isOlympicFilter);
+        renderSports();
+      });
+
+      document.getElementById('statsBtn').addEventListener('click', () => {
+        const total = sportsData.length;
+        const olympicCount = sportsData.filter(s => s.olympic).length;
+        const categories = [...new Set(sportsData.map(s => s.category))];
+
+        infoTitle.innerHTML = '<i class="fas fa-chart-simple"></i> Статистика';
+        infoContent.innerHTML = '';
+
+        const p1 = document.createElement('p');
+        safeText(p1, `Всего видов спорта в базе: ${total}`);
+        infoContent.appendChild(p1);
+
+        const p2 = document.createElement('p');
+        safeText(p2, `Олимпийских видов: ${olympicCount}`);
+        infoContent.appendChild(p2);
+
+        const p3 = document.createElement('p');
+        safeText(p3, `Категории: ${categories.join(', ')}`);
+        infoContent.appendChild(p3);
+
+        const h4 = document.createElement('h4');
+        safeText(h4, 'Распределение по категориям:');
+        infoContent.appendChild(h4);
+
+        const ul = document.createElement('ul');
+        categories.forEach(cat => {
+          const count = sportsData.filter(s => s.category === cat).length;
+          const li = document.createElement('li');
+          safeText(li, `${cat}: ${count}`);
+          ul.appendChild(li);
+        });
+        infoContent.appendChild(ul);
+
+        infoPanel.classList.remove('hidden');
+      });
+
+      // ============ ИНИЦИАЛИЗАЦИЯ ============
+      renderSports();
+    })();
+  </script>
+</body>
+</html>
